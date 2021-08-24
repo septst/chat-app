@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<div class="container">
+    <br/>
+    <div class="jumbotron">
+        <h1 class="display-4">Send Message</h1>
+        <br/>
+        <input id="name" class="form-control" placeholder="name">
+        <br/>
+        <textarea id="message" class="form-control" placeholder="message"></textarea>
+        <br/>
+        <button class="btn btn-success" id="btnSend">Send</button>
+    </div>
+    <div id="divMessages">
+
+    </div>
+</div>
+<script>
+    let socket = io();
+    $(() => {
+        $("#btnSend").click(() => {
+            var message = {name: $("#name").val(), message: $("#message").val()};
+            postMessage(message);
+        });
+        getMessages();
+    });
+
+    socket.on('message', addMessage);
+
+    function addMessage(message){
+        $("#divMessages").append(`<h4>${message.name}</h4> <p>${message.message}</p>`)
+    }
+
+    function getMessages(){
+        $.get('http://localhost:3000/messages', (data) => {
+            data.forEach(element => {
+                addMessage(element);
+            });
+        })
+    }
+
+    function postMessage(message){
+        console.log("Posting...");
+        $.post('http://localhost:3000/message', message);
+    }
+    
+</script>
