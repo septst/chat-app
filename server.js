@@ -23,10 +23,8 @@ app.get('/messages', (req, res) => {
 });
 
 app.post('/message', (req, res) => {
-    messageModel.create({
-        name: req.body.name,
-        message: req.body.message
-    }, (err, message) => {
+    var message = new messageModel(req.body);
+    message.save( (err) => {
         if(err){
             res.sendStatus(300);
         }else{
