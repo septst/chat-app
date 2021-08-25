@@ -25,9 +25,10 @@
 <script>
     let socket = io();
     $(() => {
-        $("#btnSend").click(() => {
+        $("#btnSend").on('click', (e) => {
             var message = {name: $("#name").val(), message: $("#message").val()};
             postMessage(message);
+            e.stopPropagation();
         });
         getMessages();
     });
@@ -47,8 +48,9 @@
     }
 
     function postMessage(message){
-        console.log("Posting...");
-        $.post('http://localhost:3000/message', message);
+        if(message.message){
+            $.post('http://localhost:3000/message', message);
+        }
     }
     
 </script>

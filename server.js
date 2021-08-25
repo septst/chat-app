@@ -1,26 +1,41 @@
-let express = require('express');
-let app = express();
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-let messages = [
-    {name: "Parth", message: "Hello"},
-    {name: "Nihal", message: "Hi"}
-];
+require('./db');
+
+const mongoose = require('mongoose');
+const messageModel = mongoose.model('Message');
 
 app.use(express.static(__dirname));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 app.get('/messages', (req, res) => {
-    res.send(messages);
+    messageModel.find({}, (err, messages) => {
+        if(err){
+            res.sendStatus(500);
+        }else{
+            res.send(messages);
+        }
+    })  
 });
 
 app.post('/message', (req, res) => {
-    messages.push(req.body);
-    io.emit('message', req.body);
-    res.sendStatus(200);
-    console.log(`Message posted from ${req.body.name}.`);
+    messageModel.create({
+        name: req.body.name,
+        message: req.body.message
+    }, (err, message) => {
+        if(err){
+            res.sendStatus(300);
+        }else{
+            //emit new message to the client
+            io.emit('message', req.body);
+            res.sendStatus(200);
+            console.log(`Message posted from ${req.body.name}.`);
+        }
+    });
 });
 
 io.on('connection', (socket) => {
